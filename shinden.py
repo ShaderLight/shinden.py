@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 
+base_url = 'https://shinden.pl/'
+
 class Result(object):
-    def __init__(self, title, tags, ratings, type_, episodes, status, top_score):
+    def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url):
         self.title = title
         self.tags = tags
         self.ratings = ratings
@@ -10,11 +12,12 @@ class Result(object):
         self.episodes = episodes
         self.status = status
         self.top_score = top_score
+        self.url = url
 
 def get_first_page_search(name, type_of_search = 'series'):
     results = []
     name = str(name)
-    url = 'https://shinden.pl/' + str(type_of_search) + '?search=' + name.replace(' ','+')
+    url = base_url + str(type_of_search) + '?search=' + name.replace(' ','+')
     
     r = requests.get(url)
 
@@ -33,6 +36,8 @@ def get_first_page_search(name, type_of_search = 'series'):
         title = anime.find('h3')
         if title is None:
             continue
+        anime_url = title.find('a')['href']
+
         tag_buttons = anime.find_all('a', {'data-tag-id':True})
 
         for tag in tag_buttons:
@@ -114,13 +119,13 @@ def get_first_page_search(name, type_of_search = 'series'):
         except:
             true_top_score = top_score.text
         
-        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score)
+        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score, base_url + anime_url)
         
         results.append(anime_object)
     return results
 
 def get_tags():
-    url = 'https://shinden.pl/series?'
+    url = base_url + '/series?'
 
     r = requests.get(url)
 
@@ -138,3 +143,5 @@ def get_tags():
         'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
 
     return (tag_list)
+
+get_first_page_search('jojo')
