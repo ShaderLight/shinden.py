@@ -1,7 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_first_search(name, type_of_search = 'series'):
+class Result(object):
+    def __init__(self, title, tags, ratings, type_, episodes, status, top_score):
+        self.title = title
+        self.tags = tags
+        self.ratings = ratings
+        self.type = type_
+        self.episodes = episodes
+        self.status = status
+        self.top_score = top_score
+
+def get_first_page_search(name, type_of_search = 'series'):
+    results = []
     name = str(name)
     url = 'https://shinden.pl/' + str(type_of_search) + '?search=' + name.replace(' ','+')
     
@@ -17,7 +28,6 @@ def get_first_search(name, type_of_search = 'series'):
     search_result_box = soup.find('section', class_='title-table')
     animes = search_result_box.find_all('ul', class_='div-row')
 
-    anime_list={}
     for anime in animes:
         tags=[]
         title = anime.find('h3')
@@ -27,11 +37,9 @@ def get_first_search(name, type_of_search = 'series'):
 
         for tag in tag_buttons:
             tags.append(tag.text)
-        
-        anime_list[title.text] = {'tags': tags}
 
         rating_box = anime.find('li', {'class': 'ratings-col'})
-
+        rating_dict = {}
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-total'})
         for t in spec_rating.text.split():
@@ -40,7 +48,7 @@ def get_first_search(name, type_of_search = 'series'):
             except ValueError:
                 pass
         
-        anime_list[title.text]['ratings'] = {'total' : rating}
+        rating_dict['ratings'] = {'total' : rating}
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-story'})
         for t in spec_rating.text.split():
@@ -49,7 +57,7 @@ def get_first_search(name, type_of_search = 'series'):
             except ValueError:
                 pass
         
-        anime_list[title.text]['ratings']['story'] = rating
+        rating_dict['ratings']['story'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'})
         for t in spec_rating.text.split():
@@ -58,7 +66,7 @@ def get_first_search(name, type_of_search = 'series'):
             except ValueError:
                 pass
         
-        anime_list[title.text]['ratings']['graphics'] = rating
+        rating_dict['ratings']['graphics'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-music'})
         for t in spec_rating.text.split():
@@ -67,7 +75,7 @@ def get_first_search(name, type_of_search = 'series'):
             except ValueError:
                 pass
         
-        anime_list[title.text]['ratings']['music'] = rating
+        rating_dict['ratings']['music'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'})
         for t in spec_rating.text.split():
@@ -76,21 +84,44 @@ def get_first_search(name, type_of_search = 'series'):
             except ValueError:
                 pass
         
-        anime_list[title.text]['ratings']['characters'] = rating
+        rating_dict['ratings']['characters'] = rating
 
         anime_type = anime.find('li', {'class': 'title-kind-col'})
-        anime_list[title.text]['type'] = anime_type.text
         
         episodes = anime.find('li', {'class': 'episodes-col'})
-        anime_list[title.text]['episodes'] = int(episodes.text)
 
         status = anime.find('li', {'class': 'title-status-col'})
-        anime_list[title.text]['status'] = status.text
 
         top_score = anime.find('li', {'class': 'rate-top'})
+        
         try:
-            anime_list[title.text]['top_score'] = float(top_score.text)
+            true_top_score = float(top_score.text)
         except ValueError:
-            anime_list[title.text]['top_score'] = top_score.text
-    
-    return anime_list
+            true_top_score = top_score.text
+        
+        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score)
+        
+        results.append(anime_object)
+    return results
+
+def get_tags():
+    url = 'https://shinden.pl/series?'
+
+    r = requests.get(url)
+
+    soup = BeautifulSoup(r.content, 'html.parser')
+
+    tag_box = soup.find_all('div', {'class':'search-items tab-item'})
+
+    genres = tag_box[0].find('ul', {'class':'genre-list'})
+    target_groups = tag_box[1].find('ul', {'class':'genre-list'})
+    entity = tag_box[2].find('ul', {'class':'genre-list'})
+    place = tag_box[3].find('ul', {'class':'genre-list'})
+    other_tags = tag_box[4].find('ul', {'class':'genre-list'})
+
+    tag_list = {'genres': list(filter(None, genres.text.splitlines())), 'target_groups': list(filter(None, target_groups.text.splitlines())), 
+        'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
+
+    return (tag_list)
+
+print(get_tags())
