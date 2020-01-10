@@ -42,47 +42,62 @@ def get_first_page_search(name, type_of_search = 'series'):
         rating_dict = {}
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-total'})
-        for t in spec_rating.text.split():
-            try:
-                rating = float(t)
-            except ValueError:
-                pass
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError:
+            rating = "None"
         
         rating_dict['ratings'] = {'total' : rating}
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-story'})
-        for t in spec_rating.text.split():
-            try:
-                rating = float(t)
-            except ValueError:
-                pass
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                 pass
+        except AttributeError:
+            rating = "None"
         
         rating_dict['ratings']['story'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'})
-        for t in spec_rating.text.split():
-            try:
-                rating = float(t)
-            except ValueError:
-                pass
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                   pass
+        except AttributeError:
+            rating = "None"
         
         rating_dict['ratings']['graphics'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-music'})
-        for t in spec_rating.text.split():
-            try:
-                rating = float(t)
-            except ValueError:
-                pass
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError:
+            rating = "None"
         
         rating_dict['ratings']['music'] = rating
 
         spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'})
-        for t in spec_rating.text.split():
-            try:
-                rating = float(t)
-            except ValueError:
-                pass
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError:
+            rating = "None"
         
         rating_dict['ratings']['characters'] = rating
 
@@ -96,7 +111,7 @@ def get_first_page_search(name, type_of_search = 'series'):
         
         try:
             true_top_score = float(top_score.text)
-        except ValueError:
+        except:
             true_top_score = top_score.text
         
         anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score)
