@@ -123,5 +123,3 @@ def get_tags():
         'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
 
     return (tag_list)
-
-print(get_tags())
