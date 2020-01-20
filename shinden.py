@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 base_url = 'https://shinden.pl/'
 
 class Result(object):
-    def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url):
+    def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url, cover_url):
         self.title = title
         self.tags = tags
         self.ratings = ratings
@@ -13,6 +13,7 @@ class Result(object):
         self.status = status
         self.top_score = top_score
         self.url = url
+        self.cover_url = cover_url
 
 def get_first_page_search(name, type_of_search = 'series'):
     results = []
@@ -113,13 +114,15 @@ def get_first_page_search(name, type_of_search = 'series'):
         status = anime.find('li', {'class': 'title-status-col'})
 
         top_score = anime.find('li', {'class': 'rate-top'})
+
+        image_url = anime.find('li', {'class': 'cover-col'}).find('a')['href']
         
         try:
             true_top_score = float(top_score.text)
         except:
             true_top_score = top_score.text
         
-        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score, base_url + anime_url)
+        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score, base_url + anime_url, base_url + image_url)
         
         results.append(anime_object)
     return results
@@ -143,3 +146,4 @@ def get_tags():
         'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
 
     return (tag_list)
+
