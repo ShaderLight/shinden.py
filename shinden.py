@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 base_url = 'https://shinden.pl/'
+
 
 class Result(object):
     def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url, cover_url):
@@ -14,6 +16,12 @@ class Result(object):
         self.top_score = top_score
         self.url = url
         self.cover_url = cover_url
+
+class Character(object):
+    def __init__(self, name, image_url):
+        self.name = name
+        self.image_url = image_url
+
 
 def get_first_page_search(name, type_of_search = 'series'):
     results = []
@@ -147,3 +155,21 @@ def get_tags():
 
     return (tag_list)
 
+# Searches shinden.pl for characters; search_type can be 'contains' or 'equals'
+# depending on how we want to search using our keyword (name)
+def search_characters(keyword, search_type = 'contains'):
+    assert search_type == 'contains' or search_type == 'equals', 'Bad search type'
+    character_list = []
+    url = base_url + '/character?type=' + search_type + '&search=' + keyword.replace(' ','+')
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'html.parser')
+    character_container = soup.find('section', {'class':'character-list'})
+    characters = character_container.find_all('li',{'class':'data-view-list'})
+
+    for character in characters:
+        cover_url = base_url + character.find('img')['src']
+        name = character.find('h3',{'class':'title'}).text
+        character = Character(name, cover_url)
+        character_list.append(character)
+    
+    return(character_list)
