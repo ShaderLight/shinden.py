@@ -17,14 +17,17 @@ class Result(object):
         self.url = url
         self.cover_url = cover_url
 
+
 class Character(object):
-    def __init__(self, name, gender, is_historical, url, image_url, appearance_list):
+    def __init__(self, name, gender, is_historical, url, image_url, appearance_list, description):
         self.name = name
         self.gender = gender
         self.is_historical = is_historical
         self.url = url
         self.image_url = image_url
         self.appearance_list = appearance_list
+        self.description = description
+
     def __repr__(self):
         return '<Character "' + self.name + '" object>'
 
@@ -140,6 +143,7 @@ def get_first_page_search(name, type_of_search = 'series'):
         results.append(anime_object)
     return results
 
+
 def get_tags():
     url = base_url + '/series?'
 
@@ -161,6 +165,7 @@ def get_tags():
         'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
 
     return (tag_list)
+
 
 # Searches shinden.pl for characters; search_type can be 'contains' or 'equals'
 # depending on how we want to search using our keyword (name)
@@ -196,6 +201,22 @@ def search_characters(keyword, search_type = 'contains'):
         for appear in appearances:
             appearance_list.append(appear.text.replace(',',''))
         appearance_list = (list(dict.fromkeys(appearance_list)))
-        character_object = Character(name, gender, is_historical, url, image_url,appearance_list)
+        description = get_character_description(url)
+        character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
         character_list.append(character_object)
+        
     return(character_list)
+
+def get_character_description(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
+    
+    soup = BeautifulSoup(r.content, 'html.parser')
+    try:
+        description_box = soup.find_all('table',{'class':'data-view-table'},limit=2)
+        description = description_box[1].find_all('td',limit=2)[1].text
+    except IndexError:
+        return None
+    return(description)
+
