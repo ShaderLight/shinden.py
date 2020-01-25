@@ -18,9 +18,14 @@ class Result(object):
         self.cover_url = cover_url
 
 class Character(object):
-    def __init__(self, name, image_url):
+    def __init__(self, name, gender, is_historical, url, image_url):
         self.name = name
+        self.gender = gender
+        self.is_historical = is_historical
+        self.url = url
         self.image_url = image_url
+    def __repr__(self):
+        return '<Character "' + self.name + '" object>'
 
 
 def get_first_page_search(name, type_of_search = 'series'):
@@ -167,9 +172,20 @@ def search_characters(keyword, search_type = 'contains'):
     characters = character_container.find_all('li',{'class':'data-view-list'})
 
     for character in characters:
-        cover_url = base_url + character.find('img')['src']
+        image_url = base_url + character.find('img')['src']
         name = character.find('h3',{'class':'title'}).text
-        character = Character(name, cover_url)
-        character_list.append(character)
-    
+        url = base_url + character.find('h3',{'class':'title'}).find('a')['href']
+        info_str = character.find('p').text.replace(' ','')
+        if 'female' in info_str:
+            gender = 'female'
+        elif 'male' in info_str:
+            gender = 'male'
+        else:
+            gender = 'unspecified'
+        if info_str[-3:] == 'tak':
+            is_historical = True
+        else:
+            is_historical = False
+        character_object = Character(name, gender, is_historical, url, image_url)
+        character_list.append(character_object)
     return(character_list)
