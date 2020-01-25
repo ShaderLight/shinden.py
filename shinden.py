@@ -18,12 +18,13 @@ class Result(object):
         self.cover_url = cover_url
 
 class Character(object):
-    def __init__(self, name, gender, is_historical, url, image_url):
+    def __init__(self, name, gender, is_historical, url, image_url, appearance_list):
         self.name = name
         self.gender = gender
         self.is_historical = is_historical
         self.url = url
         self.image_url = image_url
+        self.appearance_list = appearance_list
     def __repr__(self):
         return '<Character "' + self.name + '" object>'
 
@@ -34,7 +35,6 @@ def get_first_page_search(name, type_of_search = 'series'):
     url = base_url + str(type_of_search) + '?search=' + name.replace(' ','+')
     
     r = requests.get(url)
-
     if r.status_code != 200:
         return "Error with status code: " + str(r.status_code)
 
@@ -144,6 +144,8 @@ def get_tags():
     url = base_url + '/series?'
 
     r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -167,6 +169,8 @@ def search_characters(keyword, search_type = 'contains'):
     character_list = []
     url = base_url + '/character?type=' + search_type + '&search=' + keyword.replace(' ','+')
     r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
     soup = BeautifulSoup(r.content, 'html.parser')
     character_container = soup.find('section', {'class':'character-list'})
     characters = character_container.find_all('li',{'class':'data-view-list'})
@@ -186,6 +190,12 @@ def search_characters(keyword, search_type = 'contains'):
             is_historical = True
         else:
             is_historical = False
-        character_object = Character(name, gender, is_historical, url, image_url)
+        appearance_list = []
+        appearance_container = character.find('ul',{'class':'data-view-list'})
+        appearances = appearance_container.find_all('li')
+        for appear in appearances:
+            appearance_list.append(appear.text.replace(',',''))
+        appearance_list = (list(dict.fromkeys(appearance_list)))
+        character_object = Character(name, gender, is_historical, url, image_url,appearance_list)
         character_list.append(character_object)
     return(character_list)
