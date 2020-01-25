@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 base_url = 'https://shinden.pl/'
+
 
 class Result(object):
     def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url, cover_url):
@@ -15,13 +17,27 @@ class Result(object):
         self.url = url
         self.cover_url = cover_url
 
+
+class Character(object):
+    def __init__(self, name, gender, is_historical, url, image_url, appearance_list, description):
+        self.name = name
+        self.gender = gender
+        self.is_historical = is_historical
+        self.url = url
+        self.image_url = image_url
+        self.appearance_list = appearance_list
+        self.description = description
+
+    def __repr__(self):
+        return '<Character "' + self.name + '" object>'
+
+
 def get_first_page_search(name, type_of_search = 'series'):
     results = []
     name = str(name)
     url = base_url + str(type_of_search) + '?search=' + name.replace(' ','+')
     
     r = requests.get(url)
-
     if r.status_code != 200:
         return "Error with status code: " + str(r.status_code)
 
@@ -127,10 +143,13 @@ def get_first_page_search(name, type_of_search = 'series'):
         results.append(anime_object)
     return results
 
+
 def get_tags():
     url = base_url + '/series?'
 
     r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -146,4 +165,58 @@ def get_tags():
         'entity': list(filter(None, entity.text.splitlines())), 'place': list(filter(None, place.text.splitlines())), 'other': list(filter(None, other_tags.text.splitlines()))}
 
     return (tag_list)
+
+
+# Searches shinden.pl for characters; search_type can be 'contains' or 'equals'
+# depending on how we want to search using our keyword (name)
+def search_characters(keyword, search_type = 'contains'):
+    assert search_type == 'contains' or search_type == 'equals', 'Bad search type'
+    character_list = []
+    url = base_url + '/character?type=' + search_type + '&search=' + keyword.replace(' ','+')
+    r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
+    soup = BeautifulSoup(r.content, 'html.parser')
+    character_container = soup.find('section', {'class':'character-list'})
+    characters = character_container.find_all('li',{'class':'data-view-list'})
+
+    for character in characters:
+        image_url = base_url + character.find('img')['src']
+        name = character.find('h3',{'class':'title'}).text
+        url = base_url + character.find('h3',{'class':'title'}).find('a')['href']
+        info_str = character.find('p').text.replace(' ','')
+        if 'female' in info_str:
+            gender = 'female'
+        elif 'male' in info_str:
+            gender = 'male'
+        else:
+            gender = 'unspecified'
+        if info_str[-3:] == 'tak':
+            is_historical = True
+        else:
+            is_historical = False
+        appearance_list = []
+        appearance_container = character.find('ul',{'class':'data-view-list'})
+        appearances = appearance_container.find_all('li')
+        for appear in appearances:
+            appearance_list.append(appear.text.replace(',',''))
+        appearance_list = (list(dict.fromkeys(appearance_list)))
+        description = get_character_description(url)
+        character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
+        character_list.append(character_object)
+        
+    return(character_list)
+
+def get_character_description(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return "Error with status code: " + str(r.status_code)
+    
+    soup = BeautifulSoup(r.content, 'html.parser')
+    try:
+        description_box = soup.find_all('table',{'class':'data-view-table'},limit=2)
+        description = description_box[1].find_all('td',limit=2)[1].text
+    except IndexError:
+        return None
+    return(description)
 
