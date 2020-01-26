@@ -35,6 +35,15 @@ class Character(object):
     def __repr__(self):
         return '<Character "' + self.name + '" object>'
 
+class User(object):
+    def __init__(self, nickname, url, avatar_url):
+        self.nickname = nickname
+        self.url = url
+        self.avatar_url = avatar_url
+    
+    def __repr__(self):
+        return '<User "' + self.nickname + '" object>'
+
 #gets all anime or manga results from first page of shinden search engine
 def get_first_page_search(name, anime_or_manga = 'anime'):
     assert anime_or_manga in ['anime','manga']
@@ -239,3 +248,29 @@ def get_character_description(url):
         return None
     
     return(description)
+
+
+def search_users(keyword, search_type='contains'):
+    assert search_type in ['contains', 'equals']
+    url = base_url + '/users/?type=' + search_type + '&search=' + keyword.replace(' ','+')
+    r = requests.get(url)
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
+    
+    user_list = []
+    soup = BeautifulSoup(r.content, 'html.parser')
+    user_container = soup.find('ul', {'class':'users-list'})
+    users = user_container.find_all('li',{'class':'user-list-item'})
+
+    for user in users:
+        nickname = user.find('h3',{'class':'title user-name'}).text
+        url = base_url + user.find('a',{'class':'media-img'})['href']
+        
+        if 'gravatar.com' in user.find('img',{'class':'avatar-image av-size100x100'})['src']:
+            avatar_url = user.find('img',{'class':'avatar-image av-size100x100'})['src']
+        else:
+            avatar_url = base_url + user.find('img',{'class':'avatar-image av-size100x100'})['src']
+        
+        user_object = User(nickname, url, avatar_url)
+        user_list.append(user_object)
+    
+    return(user_list)
