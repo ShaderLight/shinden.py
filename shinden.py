@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 
 
-base_url = 'https://shinden.pl/'
+base_url = 'https://shinden.pl'
 
 
 class Result(object):
@@ -36,11 +36,14 @@ class Character(object):
         return '<Character "' + self.name + '" object>'
 
 class User(object):
-    def __init__(self, nickname, url, avatar_url):
+    def __init__(self, nickname, url, avatar_url, achievement_url, animelist_url, mangalist_url):
         self.nickname = nickname
         self.url = url
         self.avatar_url = avatar_url
-    
+        self.achievement_url = achievement_url
+        self.animelist_url = animelist_url
+        self.mangalist_url = mangalist_url
+
     def __repr__(self):
         return '<User "' + self.nickname + '" object>'
 
@@ -51,9 +54,9 @@ def get_first_page_search(name, anime_or_manga = 'anime'):
     results = []
     name = str(name)
     if anime_or_manga == 'anime':
-        url = base_url + 'series' + '?search=' + name.replace(' ','+')
+        url = base_url + '/series' + '?search=' + name.replace(' ','+')
     else:
-        url = base_url + 'manga' + '?search=' + name.replace(' ','+')
+        url = base_url + '/manga' + '?search=' + name.replace(' ','+')
     
     r = requests.get(url)
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
@@ -227,7 +230,7 @@ def search_characters(keyword, search_type = 'contains'):
             appearance_list.append(appear.text.replace(',',''))
         appearance_list = (list(dict.fromkeys(appearance_list)))
 
-        sleep(0.2) # wait a bit before another request
+        sleep(0.3) # wait a bit before another request
         description = get_character_description(url)
 
         character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
@@ -270,7 +273,13 @@ def search_users(keyword, search_type='contains'):
         else:
             avatar_url = base_url + user.find('img',{'class':'avatar-image av-size100x100'})['src']
         
-        user_object = User(nickname, url, avatar_url)
+        achievement_url = base_url + '/user' + url[23:] + '/achievements'
+        animelist_url = base_url + '/animelist' + url[23:]
+        mangalist_url = base_url + '/mangalist' + url[23:]
+
+        user_object = User(nickname, url, avatar_url, achievement_url, animelist_url, mangalist_url)
         user_list.append(user_object)
     
     return(user_list)
+
+search_users('kaeruseninn')
