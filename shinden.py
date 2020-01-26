@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from time import sleep
 
 
 base_url = 'https://shinden.pl/'
@@ -16,6 +17,9 @@ class Result(object):
         self.top_score = top_score
         self.url = url
         self.cover_url = cover_url
+    
+    def __repr__(self):
+        return '<Result "' + self.title + '" object>'
 
 
 class Character(object):
@@ -31,17 +35,19 @@ class Character(object):
     def __repr__(self):
         return '<Character "' + self.name + '" object>'
 
-
-def get_first_page_search(name, type_of_search = 'series'):
+#gets all anime or manga results from first page of shinden search engine
+def get_first_page_search(name, anime_or_manga = 'anime'):
+    assert anime_or_manga in ['anime','manga']
+    
     results = []
     name = str(name)
-    url = base_url + str(type_of_search) + '?search=' + name.replace(' ','+')
+    if anime_or_manga == 'anime':
+        url = base_url + 'series' + '?search=' + name.replace(' ','+')
+    else:
+        url = base_url + 'manga' + '?search=' + name.replace(' ','+')
     
     r = requests.get(url)
-    if r.status_code != 200:
-        return "Error with status code: " + str(r.status_code)
-
-    print("Status code: " + str(r.status_code))
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -125,8 +131,11 @@ def get_first_page_search(name, type_of_search = 'series'):
 
         anime_type = anime.find('li', {'class': 'title-kind-col'})
         
-        episodes = anime.find('li', {'class': 'episodes-col'})
-
+        if anime_or_manga == 'anime':
+            episodes = anime.find('li', {'class': 'episodes-col'})
+        else:
+            episodes = anime.find('li', {'class': 'chapters-col'})
+        
         status = anime.find('li', {'class': 'title-status-col'})
 
         top_score = anime.find('li', {'class': 'rate-top'})
@@ -134,11 +143,15 @@ def get_first_page_search(name, type_of_search = 'series'):
         image_url = anime.find('li', {'class': 'cover-col'}).find('a')['href']
         
         try:
-            true_top_score = float(top_score.text)
+            checked_top_score = float(top_score.text)
         except:
-            true_top_score = top_score.text
-        
-        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, true_top_score, base_url + anime_url, base_url + image_url)
+            checked_top_score = top_score.text
+        title.text
+        anime_type.text
+        episodes.text
+        status.text
+
+        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
         
         results.append(anime_object)
     return results
@@ -148,8 +161,7 @@ def get_tags():
     url = base_url + '/series?'
 
     r = requests.get(url)
-    if r.status_code != 200:
-        return "Error with status code: " + str(r.status_code)
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -172,10 +184,11 @@ def get_tags():
 def search_characters(keyword, search_type = 'contains'):
     assert search_type == 'contains' or search_type == 'equals', 'Bad search type'
     character_list = []
+
     url = base_url + '/character?type=' + search_type + '&search=' + keyword.replace(' ','+')
     r = requests.get(url)
-    if r.status_code != 200:
-        return "Error with status code: " + str(r.status_code)
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
+
     soup = BeautifulSoup(r.content, 'html.parser')
     character_container = soup.find('section', {'class':'character-list'})
     characters = character_container.find_all('li',{'class':'data-view-list'})
@@ -185,6 +198,7 @@ def search_characters(keyword, search_type = 'contains'):
         name = character.find('h3',{'class':'title'}).text
         url = base_url + character.find('h3',{'class':'title'}).find('a')['href']
         info_str = character.find('p').text.replace(' ','')
+        
         if 'female' in info_str:
             gender = 'female'
         elif 'male' in info_str:
@@ -195,22 +209,27 @@ def search_characters(keyword, search_type = 'contains'):
             is_historical = True
         else:
             is_historical = False
+        
         appearance_list = []
         appearance_container = character.find('ul',{'class':'data-view-list'})
         appearances = appearance_container.find_all('li')
+        
         for appear in appearances:
             appearance_list.append(appear.text.replace(',',''))
         appearance_list = (list(dict.fromkeys(appearance_list)))
+
+        sleep(0.2) # wait a bit before another request
         description = get_character_description(url)
+
         character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
         character_list.append(character_object)
-        
+        print(character_object)
     return(character_list)
+
 
 def get_character_description(url):
     r = requests.get(url)
-    if r.status_code != 200:
-        return "Error with status code: " + str(r.status_code)
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
     
     soup = BeautifulSoup(r.content, 'html.parser')
     try:
@@ -218,5 +237,5 @@ def get_character_description(url):
         description = description_box[1].find_all('td',limit=2)[1].text
     except IndexError:
         return None
+    
     return(description)
-
