@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
-
+from datetime import datetime
 
 base_url = 'https://shinden.pl'
 
@@ -282,4 +282,48 @@ def search_users(keyword, search_type='contains'):
     
     return(user_list)
 
-search_users('kaeruseninn')
+
+def get_detailed_user_info(user_url):
+    assert 'shinden.pl/user/' in user_url, 'Bad url'
+    r = requests.get(user_url)
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
+
+    soup = BeautifulSoup(r.content, 'html.parser')
+    info_dict = {}
+    friend_list = []
+    friend_container = soup.find('div',{'class':'friends'})
+    
+    for friend in friend_container.find_all('a',{'class':'avatar button-with-tip'}):
+        friend_dict = {}
+        friend_dict['nickname'] = friend['title']
+        friend_dict['url'] = (base_url + friend['href'])
+        friend_list.append(friend_dict)
+
+    stats = soup.find('dl',{'class':'stats'})
+    registered_time_ago = stats.find_all('span',{'class':'timeago'})[1]['title']
+    registered_time_ago = datetime.strptime(registered_time_ago, '%Y-%m-%d %H:%M:%S')
+    
+    last_seen = stats.find_all('span',{'class':'timeago'})[0]['title']
+    last_seen = datetime.strptime(last_seen, '%Y-%m-%d %H:%M:%S')
+    
+    achievement_count = int(soup.find('div',{'class':'achievements'}).find('span').text)
+    
+    points = int(stats.find_all('dd')[4].text)
+    
+    anime_stats_section = soup.find('section',{'class':'push0 col6 box anime-stats'})
+
+    average_ratings = float(anime_stats_section.find('strong',{'class':'button-witch-tip'}).text)
+    anime_rated = int(anime_stats_section.find('strong',{'class':'button-witch-tip'})['title'][-3:])
+    
+    minutes_watched = int(anime_stats_section.find('div',{'class':'total-time'}).find('strong')['title'][:-4])
+    
+    info_dict['friend_list'] = friend_list
+    info_dict['registered_time_ago'] = registered_time_ago
+    info_dict['last_seen'] = last_seen
+    info_dict['achievement_count'] = achievement_count
+    info_dict['points'] = points
+    info_dict['average_ratings'] = average_ratings
+    info_dict['anime_rated'] = anime_rated
+    info_dict['minutes_watched'] = minutes_watched
+
+    return(info_dict)
