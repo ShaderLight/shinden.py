@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 from datetime import datetime
 
+
 base_url = 'https://shinden.pl'
 
 
@@ -35,6 +36,7 @@ class Character(object):
     def __repr__(self):
         return '<Character "' + self.name + '" object>'
 
+
 class User(object):
     def __init__(self, nickname, url, avatar_url, achievement_url, animelist_url, mangalist_url):
         self.nickname = nickname
@@ -46,6 +48,7 @@ class User(object):
 
     def __repr__(self):
         return '<User "' + self.nickname + '" object>'
+
 
 #gets all anime or manga results from first page of shinden search engine
 def get_first_page_search(name, anime_or_manga = 'anime'):
@@ -158,10 +161,6 @@ def get_first_page_search(name, anime_or_manga = 'anime'):
             checked_top_score = float(top_score.text)
         except:
             checked_top_score = top_score.text
-        title.text
-        anime_type.text
-        episodes.text
-        status.text
 
         anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
         
@@ -236,6 +235,7 @@ def search_characters(keyword, search_type = 'contains'):
         character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
         character_list.append(character_object)
         print(character_object)
+    
     return(character_list)
 
 
@@ -317,6 +317,25 @@ def get_detailed_user_info(user_url):
     
     minutes_watched = int(anime_stats_section.find('div',{'class':'total-time'}).find('strong')['title'][:-4])
     
+    titles_watched = int(soup.find('table',{'class':'data-view-table episodes'}).find_all('td')[1].text)
+    episodes_watched = int(soup.find('table',{'class':'data-view-table episodes'}).find_all('td')[3].text)
+    episodes_rewatched = int(soup.find('table',{'class':'data-view-table episodes'}).find_all('td')[5].text)
+    
+    recent_anime_box = soup.find('section',{'class':'push6 col6 box last-updates anime-updates'})
+
+    recent_anime = []
+    for result in recent_anime_box.find_all('div',{'class':'bd'}):
+        anime_data = {}
+        anime_name = result.find('a').text
+        anime_url = base_url + result.find('a')['href']
+        anime_status = result.find('span',{'class':'media-title-go'}).text
+
+        anime_data['anime_name'] = anime_name
+        anime_data['anime_url'] = anime_url
+        anime_data['anime_status'] = anime_status
+
+        recent_anime.append(anime_data)
+
     info_dict['friend_list'] = friend_list
     info_dict['registered_time_ago'] = registered_time_ago
     info_dict['last_seen'] = last_seen
@@ -325,5 +344,9 @@ def get_detailed_user_info(user_url):
     info_dict['average_ratings'] = average_ratings
     info_dict['anime_rated'] = anime_rated
     info_dict['minutes_watched'] = minutes_watched
+    info_dict['titles_watched'] = titles_watched
+    info_dict['episodes_watched'] = episodes_watched
+    info_dict['episodes_rewatched'] = episodes_rewatched
+    info_dict['recent_anime'] = recent_anime
 
     return(info_dict)
