@@ -1,1 +1,1 @@
-from scrapping import*
+from shinden.scrapping import*

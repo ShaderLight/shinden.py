@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name = 'shinden',
     packages = ['shinden'],  
-    version = '0.3',      
+    version = '0.3.2',      
     license='MIT',        
     description = 'bs4 web scrapping api for shinden.pl',   
     author = 'ShaderLight',                    
