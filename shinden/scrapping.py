@@ -4,8 +4,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import requests
 
-from data_objects import*
-
+from shinden.data_objects import*
 
 base_url = 'https://shinden.pl'
 

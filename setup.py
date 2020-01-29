@@ -2,12 +2,12 @@ from distutils.core import setup
 setup(
     name = 'shinden',
     packages = ['shinden'],  
-    version = '0.3.2',      
+    version = '0.3.3',      
     license='MIT',        
     description = 'bs4 web scrapping api for shinden.pl',   
     author = 'ShaderLight',                    
     url = 'https://github.com/ShaderLight/shinden.py',   
-    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.3.1.tar.gz',   
+    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.3.3.tar.gz',   
     keywords = ['shinden', 'api', 'web scrapping'],   
     install_requires=[            
             'requests',
