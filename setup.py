@@ -7,7 +7,7 @@ setup(
     description = 'bs4 web scrapping api for shinden.pl',   
     author = 'ShaderLight',                    
     url = 'https://github.com/ShaderLight/shinden.py',   
-    download_url = '',   
+    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.3.1.tar.gz',   
     keywords = ['shinden', 'api', 'web scrapping'],   
     install_requires=[            
             'requests',
