@@ -8,6 +8,13 @@ bs4 based web scrapping api for shinden.pl
 
 ## Usage
 
+### Installation
+
+Using pip:
+```
+pip install shinden
+```
+
 ### Result
 Results are returned using **Result** object with following attributes:
 - **title**: the title of the series,
@@ -21,10 +28,13 @@ Results are returned using **Result** object with following attributes:
 - **cover_url**: url to the cover image
 
 ### Example
-
+Importing with import alias
+``` python
+import shinden as sd
+```
 Generating a list of **Result** objects based on first page of shinden search engine
 ```python
-anime_list = get_first_page_search('alchemist')
+anime_list = sd.get_first_page_search('alchemist')
 
 #    [a list of Result objects]
 ```
