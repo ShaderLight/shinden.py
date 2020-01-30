@@ -1,4 +1,4 @@
-# shinden.py  ![GitHub](https://img.shields.io/github/license/shaderlight/shinden.py) ![GitHub last commit](https://img.shields.io/github/last-commit/shaderlight/shinden.py)
+# shinden.py  ![GitHub](https://img.shields.io/github/license/shaderlight/shinden.py) ![GitHub last commit](https://img.shields.io/github/last-commit/shaderlight/shinden.py) ![PyPI](https://img.shields.io/pypi/v/shinden) 
 bs4 based web scrapping api for shinden.pl
 
 
@@ -7,6 +7,13 @@ bs4 based web scrapping api for shinden.pl
 - requests
 
 ## Usage
+
+### Installation
+
+Using pip:
+```
+pip install shinden
+```
 
 ### Result
 Results are returned using **Result** object with following attributes:
@@ -21,10 +28,13 @@ Results are returned using **Result** object with following attributes:
 - **cover_url**: url to the cover image
 
 ### Example
-
+Importing with import alias
+``` python
+import shinden as sd
+```
 Generating a list of **Result** objects based on first page of shinden search engine
 ```python
-anime_list = get_first_page_search('alchemist')
+anime_list = sd.get_first_page_search('alchemist')
 
 #    [a list of Result objects]
 ```
