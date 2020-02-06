@@ -34,7 +34,7 @@ import shinden as sd
 ```
 Generating a list of **Result** objects based on first page of shinden search engine
 ```python
-anime_list = sd.get_first_page_search('alchemist')
+anime_list = sd.search_titles('alchemist')
 
 #    [a list of Result objects]
 ```

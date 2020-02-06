@@ -9,18 +9,21 @@ from shinden.data_objects import*
 base_url = 'https://shinden.pl'
 
 
-# gets all anime or manga results from first page of shinden search engine
+# gets all anime or manga results from selected page of shinden search engine
 # 'anime or manga' variable can be either 'manga' or 'anime' depending on what are we looking for 
-def get_first_page_search(name, anime_or_manga = 'anime'):
+# sort_by can be 'score'(),'ranking-rate', 'desc' (title)
+# sort_order can be 'asc' for ascending or 'desc' for descending
+def search_titles(name, anime_or_manga = 'anime', page = 1, sort_by = 'score', sort_order = 'asc'):
     assert anime_or_manga in ['anime','manga']
-    
+    assert type(page) == int
+
     results = []
     name = str(name)
     # different request urls for different type of search
     if anime_or_manga == 'anime':
-        url = base_url + '/series' + '?search=' + name.replace(' ','+')
+        url = base_url + '/series' + '?search=' + name.replace(' ','+') + '&page=' + str(page) + '&sort_by' + sort_by + '&sort_order' + sort_order
     else:
-        url = base_url + '/manga' + '?search=' + name.replace(' ','+')
+        url = base_url + '/manga' + '?search=' + name.replace(' ','+') + '&page=' + str(page)  + '&sort_by' + sort_by + '&sort_order' + sort_order
     
     r = requests.get(url)
     assert r.status_code == 200, "Error with status code: " + str(r.status_code) # checking if the server responded without errors
@@ -404,7 +407,7 @@ def get_detailed_user_info(user_url):
 
     return(info_dict)
 
-# similar to get_first_page_search, except it get top ten titles by top score descending
+# similar to search_titles, except it get top ten titles by top score descending
 def get_top_ten_titles(anime_or_manga = 'anime'):
     assert anime_or_manga in ['anime','manga']
     results = []
