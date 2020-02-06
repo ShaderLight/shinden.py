@@ -34,9 +34,11 @@ def get_first_page_search(name, anime_or_manga = 'anime'):
     # iterating through results
     for anime in animes:
         tags=[]
+
         title = anime.find('h3')
         if title is None:
             continue
+
         anime_url = title.find('a')['href']
 
         tag_buttons = anime.find_all('a', {'data-tag-id':True})
@@ -131,7 +133,7 @@ def get_first_page_search(name, anime_or_manga = 'anime'):
             checked_top_score = top_score.text
 
         # creating Result object and passing all the data
-        anime_object = Result(title.text, tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
+        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
         
         # appending new object to a list, that will be returned after the iteration
         results.append(anime_object)
@@ -401,3 +403,132 @@ def get_detailed_user_info(user_url):
     info_dict['recent_manga'] = recent_manga
 
     return(info_dict)
+
+# similar to get_first_page_search, except it get top ten titles by top score descending
+def get_top_ten_titles(anime_or_manga = 'anime'):
+    assert anime_or_manga in ['anime','manga']
+    results = []
+
+    if anime_or_manga == 'anime':
+        url = base_url + '/series?sort_by=ranking-rate&sort_order=desc'
+    else:
+        url = base_url + '/manga?sort_by=ranking-rate&sort_order=desc'
+
+    r = requests.get(url)
+
+    assert r.status_code == 200, "Error with status code: " + str(r.status_code)
+
+    soup = BeautifulSoup(r.content, 'html.parser')
+
+    # locating an element, where all the anime/manga results are shown
+    search_result_box = soup.find('section', class_='title-table')
+    animes = search_result_box.find_all('ul', class_='div-row')
+
+    # iterating through results
+    for anime in animes:
+        tags=[]
+
+        title = anime.find('h3')
+        if title is None:
+            continue
+
+        anime_url = title.find('a')['href']
+
+        tag_buttons = anime.find_all('a', {'data-tag-id':True})
+
+        # collecting tags
+        for tag in tag_buttons:
+            tags.append(tag.text)
+
+        rating_box = anime.find('li', {'class': 'ratings-col'})
+        rating_dict = {}
+
+        # ratings are divided into few categories
+        # additionally, sometimes the ratings may not exist on the page, so we need to check if we can convert them to float
+        spec_rating = rating_box.find('div', {'class': 'rating rating-total'})
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError: # attempting to convert None type to float raises AttributeError
+            rating = "None"
+        
+        rating_dict['ratings'] = {'total' : rating}
+
+        spec_rating = rating_box.find('div', {'class': 'rating rating-story'})
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                 pass
+        except AttributeError:
+            rating = "None"
+        
+        rating_dict['ratings']['story'] = rating
+
+        spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'})
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                   pass
+        except AttributeError:
+            rating = "None"
+        
+        rating_dict['ratings']['graphics'] = rating
+
+        spec_rating = rating_box.find('div', {'class': 'rating rating-music'})
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError:
+            rating = "None"
+        
+        rating_dict['ratings']['music'] = rating
+
+        spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'})
+        try:
+            for t in spec_rating.text.split():
+                try:
+                    rating = float(t)
+                except ValueError:
+                    pass
+        except AttributeError:
+            rating = "None"
+        
+        rating_dict['ratings']['characters'] = rating
+
+        # basic data about the result (although the variables often contain 'anime' word, it also works for manga)
+        anime_type = anime.find('li', {'class': 'title-kind-col'})
+        
+        if anime_or_manga == 'anime':
+            episodes = anime.find('li', {'class': 'episodes-col'})
+        else:
+            episodes = anime.find('li', {'class': 'chapters-col'})
+        
+        status = anime.find('li', {'class': 'title-status-col'})
+
+        top_score = anime.find('li', {'class': 'rate-top'})
+
+        image_url = anime.find('li', {'class': 'cover-col'}).find('a')['href']
+        
+        # we need to check top_score, because it sometimes can be a string (on the page), saying that there is no top score for that result
+        try:
+            checked_top_score = float(top_score.text)
+        except:
+            checked_top_score = top_score.text
+
+        # creating Result object and passing all the data (title.text[1:] because there is always a blank space " " at the beginning for some reason)
+        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
+        
+        # appending new object to a list, that will be returned after the iteration
+        results.append(anime_object)
+    
+    return results
