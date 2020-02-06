@@ -165,7 +165,8 @@ def get_tags():
 
 # Searches shinden.pl for characters; search_type can be 'contains' or 'equals'
 # depending on how we want to search using our keyword (name)
-def search_characters(keyword, search_type = 'contains'):
+# get_description allows to turn off making another request if we dont need description
+def search_characters(keyword, search_type = 'contains', get_descriprion = True):
     assert search_type == 'contains' or search_type == 'equals', 'Bad search type'
     character_list = []
 
@@ -209,11 +210,14 @@ def search_characters(keyword, search_type = 'contains'):
             appearance_list.append(appear.text.replace(',','')) # removing the unnecessary commas
         appearance_list = (list(dict.fromkeys(appearance_list))) # removing duplicates (if present)
 
-        sleep(0.3) # wait a bit before another request, dont bully the server
-        description = get_character_description(url)
+        if get_descriprion:
+            sleep(0.3) # wait a bit before another request, dont bully the server
+            description = get_character_description(url)
+        else:
+            description = None
 
         # passing all the collected data to an object and appending it to the list
-        character_object = Character(name, gender, is_historical, url, image_url,appearance_list,description)
+        character_object = Character(name, gender, is_historical, url, image_url, appearance_list, description)
         character_list.append(character_object)
     
     return(character_list)
@@ -232,6 +236,7 @@ def get_character_description(url):
         return None
     
     return(description)
+
 
 # searches for users, takes the keyword and search type
 def search_users(keyword, search_type='contains'):
@@ -283,6 +288,7 @@ def search_users(keyword, search_type='contains'):
         user_list.append(user_object)
     
     return(user_list)
+
 
 # used by search_users function, needs extact user's profile url to make a request
 def get_detailed_user_info(user_url):
