@@ -6,14 +6,14 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name = 'shinden',
     packages = ['shinden'],  
-    version = '0.4.1',      
+    version = '0.4.2',      
     license='MIT',        
     description = 'bs4 web scrapping api for shinden.pl',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     author = 'ShaderLight',                    
     url = 'https://github.com/ShaderLight/shinden.py',   
-    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.4.1.tar.gz',   
+    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.4.2.tar.gz',   
     keywords = ['shinden', 'api', 'web scrapping'],   
     install_requires=[            
             'requests',
