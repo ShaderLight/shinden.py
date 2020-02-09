@@ -1,5 +1,5 @@
 import pytest
-from shinden.scrapping import *
+from shinden.scrapping import*
 
 def test_search_titles():
         results = search_titles('alchemist')
