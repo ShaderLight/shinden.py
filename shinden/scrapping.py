@@ -14,7 +14,7 @@ base_url = 'https://shinden.pl'
 # sort_by can be 'score'(),'ranking-rate', 'desc' (title)
 # sort_order can be 'asc' for ascending or 'desc' for descending
 def search_titles(name, **kwargs):
-    options = {
+    options = { # here are stored default values for parameters
         'anime_or_manga' : 'anime',
         'page' : 1,
         'sort_by' : 'score',
@@ -318,11 +318,14 @@ def get_detailed_user_info(user_url):
     # finding friend container and iterating through friends shown on the user's profile
     friend_list = []
     friend_container = soup.find('div',{'class':'friends'})
-    for friend in friend_container.find_all('a',{'class':'avatar button-with-tip'}):
-        friend_dict = {}
-        friend_dict['nickname'] = friend['title']
-        friend_dict['url'] = (base_url + friend['href'])
-        friend_list.append(friend_dict)
+    try: # in case the user has no friends
+        for friend in friend_container.find_all('a',{'class':'avatar button-with-tip'}):
+            friend_dict = {}
+            friend_dict['nickname'] = friend['title']
+            friend_dict['url'] = (base_url + friend['href'])
+            friend_list.append(friend_dict)
+    except AttributeError:
+        friend_dict = None
 
     # finding general information about the user
     stats = soup.find('dl',{'class':'stats'})
@@ -332,8 +335,10 @@ def get_detailed_user_info(user_url):
     last_seen = stats.find_all('span',{'class':'timeago'})[0]['title']
     last_seen = datetime.strptime(last_seen, '%Y-%m-%d %H:%M:%S')
     
-    achievement_count = int(soup.find('div',{'class':'achievements'}).find('span').text)
-    
+    try: #sometimes the achievement counter is broken for some reason
+        achievement_count = int(soup.find('div',{'class':'achievements'}).find('span').text)
+    except ValueError:
+        achievement_count = None
     points = int(stats.find_all('dd')[4].text)
     
     # finding anime stats, recent anime, time watched etc.
