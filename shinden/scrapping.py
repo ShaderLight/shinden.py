@@ -13,17 +13,26 @@ base_url = 'https://shinden.pl'
 # 'anime or manga' variable can be either 'manga' or 'anime' depending on what are we looking for 
 # sort_by can be 'score'(),'ranking-rate', 'desc' (title)
 # sort_order can be 'asc' for ascending or 'desc' for descending
-def search_titles(name, anime_or_manga = 'anime', page = 1, sort_by = 'score', sort_order = 'asc'):
-    assert anime_or_manga in ['anime','manga']
-    assert type(page) == int
+def search_titles(name, **kwargs):
+    options = {
+        'anime_or_manga' : 'anime',
+        'page' : 1,
+        'sort_by' : 'score',
+        'sort_order' : 'asc'
+    }
+    options.update(kwargs)
+    assert options['anime_or_manga'] in ['anime','manga']
+    assert type(options['page']) == int
+    assert type(options['sort_by']) == str
+    assert type(options['sort_order']) == str
 
     results = []
     name = str(name)
     # different request urls for different type of search
-    if anime_or_manga == 'anime':
-        url = base_url + '/series' + '?search=' + name.replace(' ','+') + '&page=' + str(page) + '&sort_by' + sort_by + '&sort_order' + sort_order
+    if options['anime_or_manga'] == 'anime':
+        url = base_url + '/series' + '?search=' + name.replace(' ','+') + '&page=' + str(options['page']) + '&sort_by' + options['sort_by'] + '&sort_order' + options['sort_order']
     else:
-        url = base_url + '/manga' + '?search=' + name.replace(' ','+') + '&page=' + str(page)  + '&sort_by' + sort_by + '&sort_order' + sort_order
+        url = base_url + '/manga' + '?search=' + name.replace(' ','+') + '&page=' + str(options['page'])  + '&sort_by' + options['sort_by'] + '&sort_order' + options['sort_order']
     
     r = requests.get(url)
     assert r.status_code == 200, "Error with status code: " + str(r.status_code) # checking if the server responded without errors
@@ -118,7 +127,7 @@ def search_titles(name, anime_or_manga = 'anime', page = 1, sort_by = 'score', s
         # basic data about the result (although the variables often contain 'anime' word, it also works for manga)
         anime_type = anime.find('li', {'class': 'title-kind-col'})
         
-        if anime_or_manga == 'anime':
+        if options['anime_or_manga'] == 'anime':
             episodes = anime.find('li', {'class': 'episodes-col'})
         else:
             episodes = anime.find('li', {'class': 'chapters-col'})
@@ -140,6 +149,8 @@ def search_titles(name, anime_or_manga = 'anime', page = 1, sort_by = 'score', s
         
         # appending new object to a list, that will be returned after the iteration
         results.append(anime_object)
+    if results == []:
+        return None
     return results
 
 # doesn't require any arguments, because it only scans available tags (located in the search filters)

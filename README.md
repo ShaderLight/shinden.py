@@ -5,6 +5,7 @@ bs4 based web scrapping api for shinden.pl
 ## Required libraries:
 - BeautifulSoup4
 - requests
+- pytest (for testing)
 
 ## Usage
 
