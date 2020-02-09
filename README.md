@@ -1,4 +1,4 @@
-# shinden.py  ![GitHub](https://img.shields.io/github/license/shaderlight/shinden.py) ![GitHub last commit](https://img.shields.io/github/last-commit/shaderlight/shinden.py) ![PyPI](https://img.shields.io/pypi/v/shinden) 
+# shinden.py  [![Build Status](https://travis-ci.com/ShaderLight/shinden.py.svg?branch=master)](https://travis-ci.com/ShaderLight/shinden.py) ![GitHub](https://img.shields.io/github/license/shaderlight/shinden.py) ![GitHub last commit](https://img.shields.io/github/last-commit/shaderlight/shinden.py) ![PyPI](https://img.shields.io/pypi/v/shinden) 
 bs4 based web scrapping api for shinden.pl
 
 
