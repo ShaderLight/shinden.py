@@ -21,6 +21,7 @@ def search_titles(name, **kwargs):
         'sort_order' : 'asc'
     }
     options.update(kwargs)
+    
     assert options['anime_or_manga'] in ['anime','manga']
     assert type(options['page']) == int
     assert type(options['sort_by']) == str

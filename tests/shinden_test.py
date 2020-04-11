@@ -26,15 +26,12 @@ def test_user():
 
 def test_search_titles_without_result():
         results = sh.search_titles('jkfbsjhdfbwkefbdv wehfdfwejidhnjk')
-        print(results)
         assert results == None
 
 def test_search_character_without_result():
         results = sh.search_titles('jkfbsjhdfbwkefbdv wehfdfwejidhnjk')
-        print(results)
         assert results == None
 
 def test_user_without_result():
         results = sh.search_titles('jkfbsjhdfbwkefbdv wehfdfwejidhnjk')
-        print(results)
         assert results == None
