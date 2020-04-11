@@ -27,15 +27,16 @@ Results are returned using **Result** object with following attributes:
 - **top_score**: overall score
 - **url**: url to the shinden.pl page of the series
 - **cover_url**: url to the cover image
+- **search_url**: url from which the result was extracted
 
 ### Example
 Importing with import alias
 ``` python
-import shinden as sd
+import shinden as sh
 ```
 Generating a list of **Result** objects based on first page of shinden search engine
 ```python
-anime_list = sd.search_titles('alchemist')
+anime_list = sh.search_titles('alchemist')
 
 #    [a list of Result objects]
 ```
