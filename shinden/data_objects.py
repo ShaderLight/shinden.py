@@ -1,6 +1,6 @@
 # an object used for returning anime or manga data
 class Result(object):
-    def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url, cover_url):
+    def __init__(self, title, tags, ratings, type_, episodes, status, top_score, url, cover_url, search_url):
         self.title = title
         self.tags = tags
         self.ratings = ratings
@@ -10,6 +10,7 @@ class Result(object):
         self.top_score = top_score
         self.url = url
         self.cover_url = cover_url
+        self.search_url = search_url
     
     def __repr__(self):
         return '<Result "' + self.title + '" object>'
@@ -31,7 +32,7 @@ class Character(object):
 
 
 # an object used for returning user data
-# there is propably a better way to organise this
+# there is probably a better way to organise this
 class User(object):
     def __init__(self, nickname, url, avatar_url, achievement_url, animelist_url, 
     mangalist_url, friend_list, registered_time_ago, last_seen, achievement_count, 

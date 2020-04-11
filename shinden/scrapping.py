@@ -146,12 +146,14 @@ def search_titles(name, **kwargs):
             checked_top_score = top_score.text
 
         # creating Result object and passing all the data
-        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
+        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url, url)
         
         # appending new object to a list, that will be returned after the iteration
         results.append(anime_object)
+    
     if results == []:
         return None
+
     return results
 
 # doesn't require any arguments, because it only scans available tags (located in the search filters)
@@ -237,6 +239,9 @@ def search_characters(keyword, search_type = 'contains', get_descriprion = True)
         character_object = Character(name, gender, is_historical, url, image_url, appearance_list, description)
         character_list.append(character_object)
     
+    if character_list == []:
+        return None
+
     return(character_list)
 
 
@@ -304,6 +309,9 @@ def search_users(keyword, search_type='contains'):
 
         user_list.append(user_object)
     
+    if user_list == []:
+        return None
+
     return(user_list)
 
 
@@ -424,7 +432,7 @@ def get_detailed_user_info(user_url):
 
     return(info_dict)
 
-# similar to search_titles, except it get top ten titles by top score descending
+# similar to search_titles, except it gets top ten titles by top score descending
 def get_top_ten_titles(anime_or_manga = 'anime'):
     assert anime_or_manga in ['anime','manga']
     results = []
@@ -546,7 +554,7 @@ def get_top_ten_titles(anime_or_manga = 'anime'):
             checked_top_score = top_score.text
 
         # creating Result object and passing all the data (title.text[1:] because there is always a blank space " " at the beginning for some reason)
-        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url)
+        anime_object = Result(title.text[1:], tags, rating_dict['ratings'], anime_type.text, episodes.text, status.text, checked_top_score, base_url + anime_url, base_url + image_url, url)
         
         # appending new object to a list, that will be returned after the iteration
         results.append(anime_object)
