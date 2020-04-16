@@ -4,17 +4,17 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
     
 setuptools.setup(
-    name = 'shinden',
-    packages = ['shinden'],  
-    version = '0.4.3',      
+    name='shinden',
+    packages=['shinden'],  
+    version='0.5',      
     license='MIT',        
-    description = 'bs4 web scrapping api for shinden.pl',
-    long_description = long_description,
-    long_description_content_type = 'text/markdown',
-    author = 'ShaderLight',                    
-    url = 'https://github.com/ShaderLight/shinden.py',   
-    download_url = 'https://github.com/ShaderLight/shinden.py/archive/v0.4.3.tar.gz',   
-    keywords = ['shinden', 'api', 'web scrapping'],   
+    description='bs4 web scrapping api for shinden.pl',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='ShaderLight',                    
+    url='https://github.com/ShaderLight/shinden.py',   
+    download_url='https://github.com/ShaderLight/shinden.py/archive/v0.5.tar.gz',   
+    keywords=['shinden', 'api', 'web scrapping'],   
     install_requires=[            
             'requests',
             'beautifulsoup4',

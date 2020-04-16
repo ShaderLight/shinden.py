@@ -1,12 +1,17 @@
-from datetime import datetime
-from time import sleep
-
 from bs4 import BeautifulSoup
 import requests
+
+from datetime import datetime
+from time import sleep
+import random
 
 from shinden.data_objects import*
 
 base_url = 'https://shinden.pl'
+user_agent_list = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582'
+]
 
 
 # gets all anime or manga results from selected page of shinden search engine
@@ -35,7 +40,8 @@ def search_titles(name, **kwargs):
     else:
         url = base_url + '/manga' + '?search=' + name.replace(' ','+') + '&page=' + str(options['page'])  + '&sort_by' + options['sort_by'] + '&sort_order' + options['sort_order']
     
-    r = requests.get(url)
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(url, headers={'User-Agent': user_agent})
     assert r.status_code == 200, "Error with status code: " + str(r.status_code) # checking if the server responded without errors
 
     soup = BeautifulSoup(r.content, 'html.parser')
@@ -160,7 +166,9 @@ def search_titles(name, **kwargs):
 def get_tags():
     url = base_url + '/series?'
 
-    r = requests.get(url)
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(url, headers={'User-Agent': user_agent})
+
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
@@ -185,12 +193,23 @@ def get_tags():
 # Searches shinden.pl for characters; search_type can be 'contains' or 'equals'
 # depending on how we want to search using our keyword (name)
 # get_description allows to turn off making another request if we dont need description
-def search_characters(keyword, search_type = 'contains', get_descriprion = True):
-    assert search_type == 'contains' or search_type == 'equals', 'Bad search type'
+def search_characters(keyword, **kwargs):
+    options = { # here are stored default values for parameters
+        'search_type' : 'contains',
+        'get_description' : True
+    }
+
+    options.update(kwargs)
+
+    assert options['search_type'] in ['contains', 'equals']
+    assert type(options['get_description']) == bool
+
+
     character_list = []
 
-    url = base_url + '/character?type=' + search_type + '&search=' + keyword.replace(' ','+')
+    url = base_url + '/character?type=' + options['search_type'] + '&search=' + keyword.replace(' ','+')
     r = requests.get(url)
+
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
     # finding the character container box on the page and finding all the elements within it
@@ -229,8 +248,8 @@ def search_characters(keyword, search_type = 'contains', get_descriprion = True)
             appearance_list.append(appear.text.replace(',','')) # removing the unnecessary commas
         appearance_list = (list(dict.fromkeys(appearance_list))) # removing duplicates (if present)
 
-        if get_descriprion:
-            sleep(0.3) # wait a bit before another request, dont bully the server
+        if options['get_description']:
+            sleep(random.randrange(5, 15)/10) # wait a bit before another request, dont bully the server
             description = get_character_description(url)
         else:
             description = None
@@ -247,7 +266,9 @@ def search_characters(keyword, search_type = 'contains', get_descriprion = True)
 
 # this function only collects the description of the character, used by search_character function
 def get_character_description(url):
-    r = requests.get(url)
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(url, headers={'User-Agent': user_agent})
+
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
     
     soup = BeautifulSoup(r.content, 'html.parser')
@@ -261,10 +282,21 @@ def get_character_description(url):
 
 
 # searches for users, takes the keyword and search type
-def search_users(keyword, search_type='contains'):
-    assert search_type in ['contains', 'equals']
-    url = base_url + '/users/?type=' + search_type + '&search=' + keyword.replace(' ','+')
-    r = requests.get(url)
+def search_users(keyword, **kwargs):
+    options = { # here are stored default values for parameters
+        'search_type' : 'contains',
+        'detailed_info' : True
+    }
+
+    options.update(kwargs)
+
+    assert options['search_type'] in ['contains', 'equals']
+    assert type(options['detailed_info']) == bool
+
+    url = base_url + '/users/?type=' + options['search_type'] + '&search=' + keyword.replace(' ','+')
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(url, headers={'User-Agent': user_agent})
+
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
     
     user_list = []
@@ -291,9 +323,30 @@ def search_users(keyword, search_type='contains'):
         animelist_url = base_url + '/animelist' + url[23:]
         mangalist_url = base_url + '/mangalist' + url[23:]
 
-        # getting detailed data by requesting the user profile subpage
-        sleep(0.3) # delaying subsequent requests
-        info_dict = get_detailed_user_info(url)
+        if options['detailed_info']:# getting detailed data by requesting the user profile subpage
+            sleep(random.randrange(5, 15)/10) # delaying subsequent requests
+            info_dict = get_detailed_user_info(url)
+        else:
+            info_dict = {}
+            info_dict['friend_list'] = None
+            info_dict['registered_time_ago'] = None
+            info_dict['last_seen'] = None
+            info_dict['achievement_count'] = None
+            info_dict['points'] = None
+            info_dict['average_anime_ratings'] = None
+            info_dict['anime_rated'] = None
+            info_dict['anime_minutes_watched'] = None 
+            info_dict['anime_titles_watched'] = None
+            info_dict['anime_episodes_watched'] = None
+            info_dict['anime_episodes_rewatched'] = None
+            info_dict['recent_anime'] = None
+            info_dict['average_manga_ratings'] = None
+            info_dict['manga_rated'] = None
+            info_dict['manga_minutes_read'] = None
+            info_dict['manga_titles_read'] = None
+            info_dict['manga_chapters_read'] = None
+            info_dict['manga_chapters_reread'] = None
+            info_dict['recent_manga'] = None
 
         # passing all the data (a lot of data) to an User object and appending it to the list 
         user_object = User(nickname, url, avatar_url, achievement_url, animelist_url, 
@@ -318,7 +371,10 @@ def search_users(keyword, search_type='contains'):
 # used by search_users function, needs extact user's profile url to make a request
 def get_detailed_user_info(user_url):
     assert 'shinden.pl/user/' in user_url, 'Bad url'
-    r = requests.get(user_url)
+
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(user_url, headers={'User-Agent': user_agent})
+
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
     soup = BeautifulSoup(r.content, 'html.parser')
@@ -442,7 +498,8 @@ def get_top_ten_titles(anime_or_manga = 'anime'):
     else:
         url = base_url + '/manga?sort_by=ranking-rate&sort_order=desc'
 
-    r = requests.get(url)
+    user_agent = random.choice(user_agent_list)
+    r = requests.get(url, headers={'User-Agent': user_agent})
 
     assert r.status_code == 200, "Error with status code: " + str(r.status_code)
 
