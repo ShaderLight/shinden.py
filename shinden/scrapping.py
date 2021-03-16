@@ -71,63 +71,48 @@ def search_titles(name, **kwargs):
 
         # ratings are divided into few categories
         # additionally, sometimes the ratings may not exist on the page, so we need to check if we can convert them to float
-        spec_rating = rating_box.find('div', {'class': 'rating rating-total'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-total'}).find('span')
+        print(spec_rating.text)
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError: # attempting to convert None type to float raises AttributeError
+            rating = float(spec_rating.text.replace(',','.')[-4:])
+        except TypeError: # attempting to convert None type to float raises TypeError
             rating = "None"
         
         rating_dict['ratings'] = {'total' : rating}
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-story'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-story'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                 pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.')[-4:])
+        except TypeError:
             rating = "None"
+        
         
         rating_dict['ratings']['story'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                   pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.')[-4:])
+        except TypeError:
             rating = "None"
+        
         
         rating_dict['ratings']['graphics'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-music'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-music'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.')[-4:])
+        except TypeError:
             rating = "None"
+        
         
         rating_dict['ratings']['music'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.')[-4:])
+        except TypeError:
             rating = "None"
+        
         
         rating_dict['ratings']['characters'] = rating
 
@@ -530,62 +515,42 @@ def get_top_ten_titles(anime_or_manga = 'anime'):
 
         # ratings are divided into few categories
         # additionally, sometimes the ratings may not exist on the page, so we need to check if we can convert them to float
-        spec_rating = rating_box.find('div', {'class': 'rating rating-total'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-total'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError: # attempting to convert None type to float raises AttributeError
+            rating = float(spec_rating.text.replace(',','.'))
+        except TypeError: # attempting to convert None type to float raises TypeError
             rating = "None"
-        
+
         rating_dict['ratings'] = {'total' : rating}
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-story'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-story'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                 pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.'))
+        except TypeError:
             rating = "None"
         
         rating_dict['ratings']['story'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-graphics'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                   pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.'))
+        except TypeError:
             rating = "None"
         
         rating_dict['ratings']['graphics'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-music'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-music'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.'))
+        except TypeError:
             rating = "None"
         
         rating_dict['ratings']['music'] = rating
 
-        spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'})
+        spec_rating = rating_box.find('div', {'class': 'rating rating-titlecahracters'}).find('span')
         try:
-            for t in spec_rating.text.split():
-                try:
-                    rating = float(t)
-                except ValueError:
-                    pass
-        except AttributeError:
+            rating = float(spec_rating.text.replace(',','.'))
+        except TypeError:
             rating = "None"
         
         rating_dict['ratings']['characters'] = rating
